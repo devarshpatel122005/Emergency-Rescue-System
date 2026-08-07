@@ -1,0 +1,84 @@
+version: '3.9'
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: ers-mongo
+    restart: unless-stopped
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo-data:/data/db
+
+  backend:
+    build:
+      context: ./backend
+    container_name: ers-backend
+    restart: unless-stopped
+    depends_on:
+      - mongo
+      - lan-discovery
+    environment:
+      PORT: 4000
+      MONGO_URI: mongodb://mongo:27017/ers
+      JWT_SECRET: ${JWT_SECRET}
+      STORAGE_PATH: /app/uploads
+      AZURE_SPEECH_KEY: ${AZURE_SPEECH_KEY}
+      AZURE_SPEECH_REGION: ${AZURE_SPEECH_REGION}
+      EVIDENCE_SECRET: ${EVIDENCE_SECRET}
+      AWS_S3_BUCKET: ${AWS_S3_BUCKET}
+      STUN_SERVERS: ${STUN_SERVERS}
+      TURN_SERVER: ${TURN_SERVER}
+      TURN_USER: ${TURN_USER}
+      TURN_PASS: ${TURN_PASS}
+      RELAY_ENABLED: ${RELAY_ENABLED}
+      LOCAL_DISCOVERY_ENABLED: ${LOCAL_DISCOVERY_ENABLED}
+    ports:
+      - '4000:4000'
+    volumes:
+      - backend-uploads:/app/uploads
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: http://localhost:4000/api
+        VITE_STUN_SERVERS: ${STUN_SERVERS}
+        VITE_TURN_SERVER: ${TURN_SERVER}
+        VITE_TURN_USER: ${TURN_USER}
+        VITE_TURN_PASS: ${TURN_PASS}
+        VITE_RELAY_ENABLED: ${RELAY_ENABLED}
+        VITE_LOCAL_DISCOVERY_ENABLED: ${LOCAL_DISCOVERY_ENABLED}
+        VITE_LOCAL_DISCOVERY_URL: ws://localhost:4010
+    container_name: ers-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+      - lan-discovery
+    environment:
+      VITE_API_BASE_URL: http://localhost:4000/api
+      SIGNALING_SERVER_URL: ${SIGNALING_SERVER_URL}
+      VITE_STUN_SERVERS: ${STUN_SERVERS}
+      VITE_TURN_SERVER: ${TURN_SERVER}
+      VITE_TURN_USER: ${TURN_USER}
+      VITE_TURN_PASS: ${TURN_PASS}
+      VITE_RELAY_ENABLED: ${RELAY_ENABLED}
+      VITE_LOCAL_DISCOVERY_ENABLED: ${LOCAL_DISCOVERY_ENABLED}
+      VITE_LOCAL_DISCOVERY_URL: ws://localhost:4010
+    ports:
+      - '5173:5173'
+
+  lan-discovery:
+    build:
+      context: ./local-discovery
+    container_name: ers-lan-discovery
+    restart: unless-stopped
+    environment:
+      LOCAL_DISCOVERY_PORT: 4010
+      LOCAL_DISCOVERY_TTL_MS: 15000
+    ports:
+      - '4010:4010'
+
+volumes:
+  mongo-data:
+  backend-uploads:

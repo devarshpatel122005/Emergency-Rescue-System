@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #102a43;
+  background: radial-gradient(circle at top, #f6fcff 0%, #edf3f6 45%, #e4edf1 100%);
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.card {
+  @apply rounded-xl border border-slate-200 bg-white/95 shadow-sm;
+}
+
+.input {
+  @apply w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none ring-brand-500 focus:ring;
+}
+
+.btn-primary {
+  @apply rounded-md bg-brand-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-700;
+}
+
+.btn-secondary {
+  @apply rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100;
+}
+
+.sos-large-button {
+  min-height: 120px;
+  border: none;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  color: #fff;
+  font-size: 1.15rem;
+  font-weight: 800;
+  cursor: pointer;
+  width: 100%;
+}
+
+.sos-large-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.leaflet-container {
+  font: inherit;
+}
